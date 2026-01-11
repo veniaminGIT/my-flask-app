@@ -3,9 +3,9 @@ name: Build and Push Docker Image
 # Când se rulează workflow-ul
 on:
   push:
-    branches: [ main ]  # La fiecare push pe branch-ul main
+    branches: [ master ]  # La fiecare push pe branch-ul main
   pull_request:
-    branches: [ main ]
+    branches: [ master]
 
 jobs:
   build-and-push:
