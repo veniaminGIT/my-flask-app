@@ -1,0 +1,44 @@
+name: Build and Push Docker Image
+
+# Când se rulează workflow-ul
+on:
+  push:
+    branches: [ main ]  # La fiecare push pe branch-ul main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Checkout codul
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # 2. Login în DockerHub
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    # 3. Extrage metadata (tags, labels)
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: mariuseu/my-flask-app
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    # 4. Build și push imaginea
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
