@@ -5,7 +5,7 @@ on:
   push:
     branches: [ master ]  # La fiecare push pe branch-ul main
   pull_request:
-    branches: [ master ]
+    branches: [ master]
 
 jobs:
   build-and-push:
@@ -23,20 +23,22 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     
-    # 3. Extrage versiunea din app.py
-    - name: Extract version from app.py
-      id: get_version
-      run: |
-        VERSION=$(grep -oP '(?<="version" : ")[^"]*' app.py)
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Extracted version: $VERSION"
+    # 3. Extrage metadata (tags, labels)
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: mariuseu/my-flask-app
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
     
-    # 4. Build și push imaginea cu versiunea din app.py
+    # 4. Build și push imaginea
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: |
-          mariuseu/my-flask-app:${{ steps.get_version.outputs.version }}
-          mariuseu/my-flask-app:latest
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
