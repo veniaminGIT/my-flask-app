@@ -27,7 +27,7 @@ jobs:
     - name: Extract version from app.py
       id: get_version
       run: |
-        VERSION=$(grep -oP '(?<="version" : ")[^"]*' app.py)
+        VERSION=$(grep -oP '"version"\s*:\s*"\K[^"]+' app.py)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Extracted version: $VERSION"
     
