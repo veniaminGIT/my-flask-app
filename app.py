@@ -8,7 +8,7 @@ def home():
     return jsonify({
         "message": "Bine ai venit la aplicația mea Docker!",
         "timestamp": datetime.datetime.now().isoformat(),
-        "version": "1.0.7"
+        "version": "1.0.8"
     })
 
 @app.route('/health')
